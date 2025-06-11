@@ -1,0 +1,11 @@
+streamlit
+PyMuPDF
+docx2txt
+Pillow
+opencv-python-headless
+langchain
+langchain-groq
+streamlit-webrtc
+av
+numpy
+python-dotenv
