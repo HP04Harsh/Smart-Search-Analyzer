@@ -1,3 +1,6 @@
+pip install fitz, docx2txt, tempfile
+
+
 import streamlit as st
 import fitz  # PyMuPDF
 import docx2txt
