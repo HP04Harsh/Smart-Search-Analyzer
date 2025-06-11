@@ -16,8 +16,9 @@ st.set_page_config(page_title="🧠 Smart Search & Analyzer", layout="centered")
 st.markdown("## 🤖 Predictive AI by Harsh")
 
 # --- Initialize ChatGroq ---
+api = st.secrets["groq"]["api_key"]
 llm = ChatGroq(
-    groq_api_key=st.secrets["groq"]["api_key"],  
+    groq_api_key=api,  
     model_name="Llama3-8b-8192",
     temperature=0.7
 )
