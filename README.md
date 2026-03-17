@@ -71,77 +71,71 @@ Capabilities:
 
 
 ---
+# ⚙️ Installation & Setup Guide
 
-# ⚙️ Installation & Setup
+This guide will walk you through the process of setting up the **Smart Search & Analyzer** on your local machine.
 
-## 1️⃣ Clone the Repository
+## 📋 Prerequisites
 
+Before you begin, ensure you have the following installed:
+* **Python 3.8 or higher**
+* **pip** (Python package installer)
+* A [Groq Cloud Account](https://console.groq.com) to obtain an API key.
+
+---
+
+## 🚀 Step-by-Step Setup
+
+### 1. Clone the Repository
+Open your terminal or command prompt and run:
 ```bash
-git clone https://github.com/your-username/your-repository-name.git
-cd your-repository-name
-2️⃣ Create Virtual Environment (Recommended)
+git clone [https://github.com/HP04Harsh/Smart-Search-Analyzer.git](https://github.com/HP04Harsh/Smart-Search-Analyzer.git)
+cd Smart-Search-Analyzer
+2. Create a Virtual Environment
+It is highly recommended to use a virtual environment to avoid dependency conflicts.
+
+On Windows:
+
+Bash
 python -m venv venv
-source venv/bin/activate   # Mac/Linux
-venv\Scripts\activate      # Windows
-3️⃣ Install Dependencies
+venv\Scripts\activate
+On Mac/Linux:
+
+Bash
+python3 -m venv venv
+source venv/bin/activate
+3. Install Dependencies
+Install all required libraries using the requirements.txt file:
+
+Bash
 pip install -r requirements.txt
-4️⃣ Setup Groq API Key
-Create:
+4. Configure Groq API Secrets
+Streamlit uses a specific way to handle local secrets.
 
-.streamlit/secrets.toml
-Add:
+In the root directory, create a folder named .streamlit.
 
+Inside that folder, create a file named secrets.toml.
+
+Paste the following code into secrets.toml and replace the placeholder with your actual key:
+
+Ini, TOML
 [groq]
-api_key = "your_groq_api_key_here"
-Get your API key from:
-👉 https://console.groq.com
+api_key = "gsk_your_actual_groq_api_key_here"
+[!WARNING]
+Never commit your secrets.toml file to GitHub. It is already included in the .gitignore to keep your API keys safe.
 
-5️⃣ Run the Application
+🖥️ Running the App
+Once the setup is complete, launch the application by running:
+
+Bash
 streamlit run main.py
-App runs at:
-
+The application should automatically open in your default web browser at:
 http://localhost:8501
-🧠 Model Used
-Llama3-8b-8192
 
-Running via Groq API
+🛠️ Troubleshooting
+Webcam Issues: If the camera doesn't load, ensure no other application (like Zoom or Teams) is using your webcam.
 
-Optimized for fast inference
+ModuleNotFoundError: If you see this error, ensure your virtual environment is activated and you have run pip install -r requirements.txt.
 
-🔐 Security
-API keys are stored securely in .streamlit/secrets.toml
+API Errors: Double-check that your API key in secrets.toml is correct and has not expired.
 
-.env or secret files should not be committed
-
-SECURITY.md included for best practices
-
-🎯 What This Project Demonstrates
-AI Integration in Web Apps
-
-Real-time LLM invocation
-
-File processing and summarization
-
-Webcam streaming in Streamlit
-
-Session state management
-
-Production-ready structure
-
-📈 Future Improvements
-Add chat memory context to LLM
-
-Add multi-model support
-
-Add authentication system
-
-Deploy on Streamlit Cloud
-
-Add vector search for document Q&A
-
-👨‍💻 Author
-Harsh
-Built with passion for AI & intelligent systems 🚀
-
-⭐ If You Like This Project
-Give it a ⭐ on GitHub and support the work!
