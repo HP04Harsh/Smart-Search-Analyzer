@@ -7,16 +7,18 @@ A browser-based AI workspace for chatting with Groq, summarizing PDF and Word do
 ## Features
 
 - **Ask anything:** multi-turn chat with Groq.
-- **Analyze a document:** extract text from PDF and DOCX files in the browser, preview it, and ask for a summary or specific answer.
-- **Ask about an image:** upload a PNG or JPEG and send it to Groq's vision model.
-- **Camera:** preview the camera locally, capture a frame, and ask Groq to describe it.
+- **Analyze a document:** extract text from PDF and DOCX files in the browser, preview it, and ask for a summary or specific answer. The answer opens in the chat workspace.
+- **Ask about an image:** upload a PNG or JPEG and send it to Groq's vision model. The answer opens in the chat workspace.
+- **Camera:** preview the camera locally, capture a frame, and ask Groq to describe it in the chat workspace.
 - **BYO API key:** enter a Groq key at startup. It is validated with Groq, then held in the current browser tab's `sessionStorage`; there is no shared application key or server-side key database.
+- **Conversation history:** chats, document analyses, and camera descriptions are listed in the sidebar and saved in this browser. Select a saved chat to continue it, or start a new one with **+**.
+- **Readable responses:** headings, emphasis, lists, code, and links are formatted for reading rather than shown as Markdown source.
 
 ### Important feature limitations
 
 - Scanned PDFs without selectable text are not OCR'd.
 - Document extraction and image resizing happen in the browser. The extracted document text or captured/uploaded image is sent to Groq when you request an analysis.
-- Chat history is held in page memory and is not saved to an account or database.
+- Chat history is saved in this browser's local storage, not synced between devices or accounts. Images are not saved with history; re-upload them to ask follow-up image questions.
 - The Vercel version uses Groq's multimodal `qwen/qwen3.8-27b` model for both text and image requests. Groq model availability and account access can change; check the [Groq model catalog](https://console.groq.com/docs/models) if the model is unavailable.
 
 ## Screenshots
@@ -81,10 +83,16 @@ The key necessarily passes through the Vercel function to reach Groq. Treat it a
 
 ```bash
 npm install
+npm run dev
+```
+
+The included Vite middleware serves the same-origin `/api` handlers locally. Alternatively, run them through the Vercel CLI:
+
+```bash
 npx vercel dev
 ```
 
-`vercel dev` runs the frontend and the `/api` functions together. Sign in with `npx vercel login` and link a project with `npx vercel link` if the CLI requests it.
+`npm run dev` runs the Vite frontend and the included local API middleware. `vercel dev` runs the app through Vercel's development server. Sign in with `npx vercel login` and link a project with `npx vercel link` if the CLI requests it.
 
 To check the static production build:
 

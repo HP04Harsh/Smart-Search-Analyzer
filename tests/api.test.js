@@ -154,3 +154,23 @@ test("does not reveal a rejected API key in an upstream error", async (t) => {
   assert.equal(response.statusCode, 401);
   assert.doesNotMatch(JSON.stringify(response.body), new RegExp(TEST_KEY));
 });
+
+test("explains when Groq cannot find the configured model", async (t) => {
+  const originalFetch = globalThis.fetch;
+  t.after(() => { globalThis.fetch = originalFetch; });
+  globalThis.fetch = async () => ({
+    ok: false,
+    status: 404,
+    json: async () => ({ error: { message: "model not found" } }),
+  });
+  const response = responseRecorder();
+
+  await chatHandler({
+    method: "POST",
+    headers: { authorization: `Bearer ${TEST_KEY}` },
+    body: { messages: [{ role: "user", content: "Hello" }] },
+  }, response);
+
+  assert.equal(response.statusCode, 503);
+  assert.match(response.body.error, /model/i);
+});

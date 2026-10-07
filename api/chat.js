@@ -89,9 +89,17 @@ export default async function handler(request, response) {
 
     const payload = await result.json().catch(() => null);
     if (!result.ok) {
-      const status = result.status === 401 ? 401 : result.status === 429 ? 429 : 502;
+      const status = result.status === 401
+        ? 401
+        : result.status === 429
+          ? 429
+          : result.status === 404
+            ? 503
+            : 502;
       const message = result.status === 401
         ? "Groq rejected this API key. Reconnect with a valid key."
+        : result.status === 404
+          ? "Groq could not find the configured model. Check the model ID and its availability in your Groq account."
         : safeErrorMessage(payload?.error?.message, apiKey);
       return response.status(status).json({ error: message });
     }

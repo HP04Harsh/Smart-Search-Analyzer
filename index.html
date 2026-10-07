@@ -9,6 +9,7 @@
     />
     <meta name="theme-color" content="#f5f7fb" />
     <title>Smart Search &amp; Analyzer</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
   <body>
     <div class="app-shell">
@@ -34,6 +35,15 @@
           </button>
         </nav>
 
+        <section class="history-section" aria-label="Conversation history">
+          <div class="history-heading">
+            <span>RECENT CHATS</span>
+            <button class="new-chat-button" id="new-chat" type="button" aria-label="Start a new chat" title="Start a new chat">+</button>
+          </div>
+          <div class="history-list" id="history-list" role="list"></div>
+          <p class="history-empty" id="history-empty">Your chats will appear here.</p>
+        </section>
+
         <div class="sidebar-bottom">
           <div class="privacy-note">
             <span class="privacy-icon" aria-hidden="true">◇</span>
@@ -56,16 +66,20 @@
 
         <section class="workspace" aria-live="polite">
           <section class="mode-panel active" id="chat-panel" data-panel="chat">
-            <div class="hero">
+            <div class="hero" id="chat-hero">
               <div class="eyebrow"><span class="eyebrow-line"></span> YOUR AI WORKSPACE</div>
               <h1>What can I help<br />you <span>figure out?</span></h1>
               <p class="hero-copy">Ask a question, explore an idea, or get help making sense of something.</p>
             </div>
             <div class="chat-card">
+              <div class="chat-title-bar" id="chat-title-bar" hidden>
+                <div><span class="chat-title-overline">CONVERSATION</span><h2 id="chat-title"></h2></div>
+                <span class="chat-title-badge">Groq AI</span>
+              </div>
               <div class="chat-messages" id="chat-messages">
                 <div class="welcome-message" id="welcome-message">
                   <span class="welcome-sparkle" aria-hidden="true">✳</span>
-                  <div><strong>A good question is a great place to start.</strong><span>Your conversations stay in this browser tab.</span></div>
+                  <div><strong>A good question is a great place to start.</strong><span>Your chat history is saved in this browser.</span></div>
                 </div>
               </div>
               <form class="composer" id="chat-form">
