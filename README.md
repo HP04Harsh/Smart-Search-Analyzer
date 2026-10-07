@@ -1,178 +1,178 @@
 # Smart Search & Analyzer
 
-A Streamlit application for asking questions with Groq, extracting text from PDF and Word documents, and trying a browser-based camera capture workflow.
+A browser-based AI workspace for chatting with Groq, summarizing PDF and Word documents, asking questions about images, and describing a camera capture. The Vercel version uses **bring your own Groq API key**: each visitor connects their own account when the app opens.
 
-> **Status:** This is a small demonstration project. Review the limitations and privacy notes below before using it with sensitive information or relying on image descriptions.
-
-## Screenshots
-
-### Ask Anything
-
-![Ask Anything screen](screenshots/ask-anything.png)
-
-### Camera Capture
-
-![Camera Capture screen](screenshots/camera-capture.png)
+> **Demo project:** Model responses may be incorrect. Do not use them as professional advice or upload information you do not have permission to share.
 
 ## Features
 
-| Feature | Current behavior |
-| --- | --- |
-| Ask Anything | Sends a text prompt to the configured Groq chat model and displays its response. |
-| PDF and DOCX upload | Extracts document text locally, displays a preview, and sends the extracted text to Groq for a summary. |
-| Image upload | Displays supported PNG and JPEG images in the app. Image pixels are **not** currently sent to a vision model. |
-| Camera capture | Captures and displays a browser camera frame. The current implementation sends a text-only prompt—not the captured image—to the chat model, so its response is not grounded in the image. |
-| Conversation history | Shows conversations held in the active Streamlit session. History is not saved to a database and may be lost when the session ends. |
+- **Ask anything:** multi-turn chat with Groq.
+- **Analyze a document:** extract text from PDF and DOCX files in the browser, preview it, and ask for a summary or specific answer.
+- **Ask about an image:** upload a PNG or JPEG and send it to Groq's vision model.
+- **Camera:** preview the camera locally, capture a frame, and ask Groq to describe it.
+- **BYO API key:** enter a Groq key at startup. It is validated with Groq, then held in the current browser tab's `sessionStorage`; there is no shared application key or server-side key database.
 
-## Technology
+### Important feature limitations
 
-- Python and Streamlit
-- Groq chat API via `langchain-groq`
-- PyMuPDF for PDF text extraction
-- `docx2txt` for DOCX text extraction
-- Pillow, OpenCV, and `streamlit-webrtc` for image and camera UI
+- Scanned PDFs without selectable text are not OCR'd.
+- Document extraction and image resizing happen in the browser. The extracted document text or captured/uploaded image is sent to Groq when you request an analysis.
+- Chat history is held in page memory and is not saved to an account or database.
+- The Vercel version uses Groq's multimodal `qwen/qwen3.8-27b` model for both text and image requests. Groq model availability and account access can change; check the [Groq model catalog](https://console.groq.com/docs/models) if the model is unavailable.
 
-## Requirements
+## Screenshots
 
-- Python 3.11 recommended (Python 3.10 or newer)
-- pip
-- A Groq account and API key: [console.groq.com](https://console.groq.com/)
-- A modern browser; camera access requires permission and may require HTTPS outside localhost
+These screenshots show the original Streamlit interface. The Vercel version has a separate responsive web interface.
 
-## Installation
+### Ask Anything
 
-### Windows (PowerShell)
+![Original Ask Anything screen](screenshots/ask-anything.png)
 
-```powershell
-git clone https://github.com/HP04Harsh/Smart-Search-Analyzer.git
-cd Smart-Search-Analyzer
+### Camera Capture
 
-py -3.11 -m venv .venv
+![Original Camera Capture screen](screenshots/camera-capture.png)
+
+## Deploy to Vercel
+
+### Dashboard deployment (recommended)
+
+1. Push this repository to GitHub and sign in to [Vercel](https://vercel.com/).
+2. In the Vercel dashboard, select **Add New → Project** and import `HP04Harsh/Smart-Search-Analyzer`.
+3. Keep the repository root as the project root. Vercel uses the included `vercel.json` and `package.json`:
+   - Framework preset: **Vite**
+   - Build command: `npm run build`
+   - Output directory: `dist`
+4. Select **Deploy**. No Groq key needs to be added to Vercel Environment Variables.
+5. Open the generated deployment URL. Each visitor is asked for their own Groq key when the page loads.
+
+When Git integration is enabled, pushes to the production branch trigger new deployments automatically.
+
+### Deploy with the Vercel CLI
+
+Install Node.js 20.19 or newer and npm, then run:
+
+```bash
+npm install
+npx vercel login
+npx vercel link
+npx vercel --prod
+```
+
+Choose the intended Vercel account and project when prompted. The Vercel CLI can also run the app locally with the deployed API functions:
+
+```bash
+npx vercel dev
+```
+
+The `/api/validate` and `/api/chat` Node.js functions are deployed alongside the Vite frontend. Camera access is available on HTTPS deployments and on localhost.
+
+## How API key handling works
+
+1. A visitor pastes a key from [Groq Console → API Keys](https://console.groq.com/keys).
+2. The browser sends it over HTTPS to `/api/validate`, which checks it with Groq.
+3. After validation, the key is held in that tab's `sessionStorage` and sent in the `Authorization` header when that visitor makes a request.
+4. Vercel relays the request to Groq. The API functions do not write visitor keys to files, databases, or application logs.
+5. Closing the tab clears its session storage. Use **Groq API connected** in the sidebar to disconnect and remove a key earlier.
+
+The key necessarily passes through the Vercel function to reach Groq. Treat it as a credential, do not paste it into chat, and use your own key only on a deployment you trust. A browser extension or compromised device can access browser storage. A key entered on the public site is not an application-wide key; every visitor must use their own.
+
+## Run locally
+
+### Vercel web app
+
+```bash
+npm install
+npx vercel dev
+```
+
+`vercel dev` runs the frontend and the `/api` functions together. Sign in with `npx vercel login` and link a project with `npx vercel link` if the CLI requests it.
+
+To check the static production build:
+
+```bash
+npm run build
+```
+
+### Original Streamlit app
+
+The repository also retains the original Python/Streamlit application in [`main.py`](./main.py). It is a separate local app and uses a local Streamlit secret instead of the Vercel BYO-key prompt.
+
+```bash
+python -m venv .venv
+# Windows PowerShell:
 .\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-```
-
-If PowerShell blocks virtual-environment activation, run the environment's Python directly instead:
-
-```powershell
-.\.venv\Scripts\python.exe -m pip install --upgrade pip
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-```
-
-### macOS and Linux
-
-```bash
-git clone https://github.com/HP04Harsh/Smart-Search-Analyzer.git
-cd Smart-Search-Analyzer
-
-python3 -m venv .venv
+# macOS / Linux:
 source .venv/bin/activate
+
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-## Configure the Groq API key
-
-Create `.streamlit/secrets.toml` in the project directory. Start from the safe example:
-
-```powershell
-# Windows PowerShell
-Copy-Item .streamlit\secrets.toml.example .streamlit\secrets.toml
-notepad .streamlit\secrets.toml
-```
-
-```bash
-# macOS / Linux
-cp .streamlit/secrets.toml.example .streamlit/secrets.toml
-```
-
-Set the file contents to the following, replacing the placeholder with your own key:
+Create `.streamlit/secrets.toml` locally:
 
 ```toml
 [groq]
 api_key = "YOUR_GROQ_API_KEY"
 ```
 
-The local `secrets.toml` file is ignored by Git. **Never commit, paste into an issue, or share an API key.** If a key has been exposed, revoke it in the provider dashboard and create a replacement. Do not use a key that has appeared in public Git history.
-
-## Run
-
-From the project directory with the virtual environment activated:
+Then run:
 
 ```bash
 streamlit run main.py
 ```
 
-Or, on Windows without activating the environment:
+Open [http://localhost:8501](http://localhost:8501). Never commit `.streamlit/secrets.toml`; it is ignored by Git.
 
-```powershell
-.\.venv\Scripts\python.exe -m streamlit run main.py
-```
+## Cost
 
-Open [http://localhost:8501](http://localhost:8501). For camera capture, allow camera access when prompted. On a remote deployment, serve the app over HTTPS for browser camera permissions.
+This repository does not charge users. Usage costs depend on the account and services used:
 
-## Usage
-
-1. Choose **Ask Anything**, **Upload File**, or **Camera Capture** in the sidebar.
-2. Enter a question, upload a supported PDF/DOCX/PNG/JPEG file, or start the camera.
-3. Review the response and the session's conversation history in the app.
-
-For document uploads, extracted text is sent to Groq. Avoid uploading confidential or personal documents unless you have reviewed the provider's data-handling terms and have permission to share that content.
-
-## Cost considerations
-
-There is no separate license or per-user charge built into this repository. Actual operating cost depends on where the app is hosted and how often it calls the Groq API.
-
-| Cost area | What to expect |
+| Cost | Notes |
 | --- | --- |
-| Running locally | No application hosting fee; your computer and internet connection are yours to provide. |
-| Groq API | Pricing, free-tier quotas, model availability, and rate limits depend on the selected model and can change. Check [Groq pricing](https://groq.com/pricing) and your account's current limits. |
-| Hosting | Local use has no hosting bill. A hosted deployment may be free or paid depending on the provider, plan, usage, and network requirements. |
-| Webcam | The browser camera feature itself does not add a separate API charge; hosting and network usage may still apply. |
+| Groq API | Each visitor pays or uses quota on their **own Groq account**. Pricing, model availability, rate limits, and any free tier can change. Check [Groq pricing](https://groq.com/pricing) and the usage dashboard. |
+| Vercel | Hosting and function charges, if any, apply to the Vercel project owner under their current plan and usage. Check [Vercel pricing](https://vercel.com/pricing). |
+| Local development | No hosting fee when running on your own computer; internet and electricity are still required. |
 
-For a model with published per-token prices, estimate API usage as:
+For a model priced per token, estimate a request as:
 
 ```text
-estimated cost =
-  (input tokens / 1,000,000 × current input price per 1M tokens)
-  + (output tokens / 1,000,000 × current output price per 1M tokens)
+(input tokens / 1,000,000 × current input price per 1M tokens)
++ (output tokens / 1,000,000 × current output price per 1M tokens)
 ```
 
-Each question, document summary, and camera-mode prompt can make an API request. Long documents can use more input tokens and may exceed model limits. The application does not currently track token usage or calculate a bill; use the provider dashboard for actual usage. No fixed price estimate is quoted here because model prices, quotas, and availability change.
+Document size, image processing, prompts, and response length affect usage. This project does not display token counts or estimate bills. Check the provider dashboards for actual charges; fixed prices are intentionally omitted because rates and quotas can change.
 
-## Project layout
+## Project structure
 
 ```text
 .
-├── main.py
-├── requirements.txt
-├── .streamlit/
-│   └── secrets.toml.example
-├── screenshots/
-│   ├── ask-anything.png
-│   └── camera-capture.png
-└── .devcontainer/
-    └── devcontainer.json
+├── api/
+│   ├── chat.js             # Validates request and relays chat/image requests to Groq
+│   └── validate.js         # Checks a visitor's API key with Groq
+├── src/
+│   ├── main.js             # Browser UI, file extraction, and camera handling
+│   └── style.css
+├── screenshots/            # Original Streamlit screenshots
+├── index.html
+├── package.json
+├── vercel.json
+├── main.py                 # Original Streamlit app
+└── requirements.txt
 ```
 
 ## Troubleshooting
 
-- **Missing Groq key:** Confirm `.streamlit/secrets.toml` exists and contains a `[groq]` section with `api_key`.
-- **Authentication or API error:** Check that the key is valid, has not been revoked, and that your Groq account permits the configured model.
-- **Model unavailable:** The model name is configured in `main.py`. Check Groq's current model catalog and update the configured model if it has changed or been retired.
-- **Missing Python modules:** Activate the virtual environment and run `pip install -r requirements.txt` again.
-- **Camera not available:** Allow camera access, check that another app is not using it, and use HTTPS when accessing the app remotely.
-- **Document too large:** Shorten or split the document; the full extracted text is sent to the model and can exceed its context limit.
+- **Invalid key:** create or rotate a key in [Groq Console](https://console.groq.com/keys), then reconnect it from the app.
+- **Model unavailable:** check [Groq's model catalog](https://console.groq.com/docs/models). The configured model ID is in `api/chat.js`.
+- **Too many requests:** check the Groq account's rate limits and usage. The app does not provide or pool API quota.
+- **Camera is blocked:** allow camera permission; remote sites must use HTTPS.
+- **Scanned PDF has no text:** the current app extracts selectable text but does not perform OCR.
+- **Vercel build or function fails:** confirm the project root is the repository root, the framework is Vite, and the Node.js runtime meets the `package.json` requirement.
+- **Text or image exceeds request limits:** use a smaller document or image. Very long documents may also exceed the model's context window.
 
-## Privacy and security
+## Security
 
-- Keep API keys in local secrets or a deployment secrets manager; never commit credentials.
-- Text extracted from documents and prompts are sent to the configured Groq API.
-- Uploaded image pixels and camera frames are not currently submitted to a vision model by this implementation.
-- Conversation history is held in Streamlit session state, not durable storage.
-- Do not rely on model output as professional, legal, medical, or financial advice.
-
-## Contributing
-
-Use a virtual environment, install `requirements.txt`, and verify the app starts locally before submitting a change. Do not include secrets, personal data, or generated local environment files in commits.
+- Never commit API keys, `.env` files, or `.streamlit/secrets.toml`.
+- Revoke a key immediately if it is disclosed in chat, screenshots, source code, logs, or Git history.
+- Text prompts, extracted document text, and images are sent to Groq only when the visitor requests an analysis.
+- Vercel receives each key as a request header to proxy the API call; the app does not intentionally persist it on the server.
+- Treat provider responses as untrusted and verify important information independently.

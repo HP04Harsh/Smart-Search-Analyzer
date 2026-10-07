@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Ask questions, summarize documents, and describe images with your own Groq API key."
+    />
+    <meta name="theme-color" content="#f5f7fb" />
+    <title>Smart Search &amp; Analyzer</title>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Application navigation">
+        <a class="brand" href="/" aria-label="Smart Search & Analyzer home">
+          <span class="brand-mark" aria-hidden="true">S</span>
+          <span class="brand-name">Smart Search<span>&amp; Analyzer</span></span>
+        </a>
+
+        <div class="sidebar-label">WORKSPACE</div>
+        <nav class="mode-nav" aria-label="Choose a feature">
+          <button class="mode-button active" type="button" data-mode="chat">
+            <span class="nav-icon" aria-hidden="true">⌕</span>
+            <span>Ask anything</span>
+          </button>
+          <button class="mode-button" type="button" data-mode="files">
+            <span class="nav-icon" aria-hidden="true">↥</span>
+            <span>Analyze a file</span>
+          </button>
+          <button class="mode-button" type="button" data-mode="camera">
+            <span class="nav-icon" aria-hidden="true">◉</span>
+            <span>Camera</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-bottom">
+          <div class="privacy-note">
+            <span class="privacy-icon" aria-hidden="true">◇</span>
+            <div><strong>Your key, your account</strong><span>Requests use your Groq API key.</span></div>
+          </div>
+          <button class="key-settings-button" id="key-settings" type="button">
+            <span class="status-dot" id="key-status-dot"></span>
+            <span id="key-status">API key not connected</span>
+            <span class="settings-arrow" aria-hidden="true">›</span>
+          </button>
+          <span class="sidebar-credit">A personal AI workspace</span>
+        </div>
+      </aside>
+
+      <main class="main-panel">
+        <header class="topbar">
+          <div class="mobile-brand"><span class="brand-mark" aria-hidden="true">S</span> Smart Search</div>
+          <span class="secure-label"><span aria-hidden="true">●</span> Private session</span>
+        </header>
+
+        <section class="workspace" aria-live="polite">
+          <section class="mode-panel active" id="chat-panel" data-panel="chat">
+            <div class="hero">
+              <div class="eyebrow"><span class="eyebrow-line"></span> YOUR AI WORKSPACE</div>
+              <h1>What can I help<br />you <span>figure out?</span></h1>
+              <p class="hero-copy">Ask a question, explore an idea, or get help making sense of something.</p>
+            </div>
+            <div class="chat-card">
+              <div class="chat-messages" id="chat-messages">
+                <div class="welcome-message" id="welcome-message">
+                  <span class="welcome-sparkle" aria-hidden="true">✳</span>
+                  <div><strong>A good question is a great place to start.</strong><span>Your conversations stay in this browser tab.</span></div>
+                </div>
+              </div>
+              <form class="composer" id="chat-form">
+                <label class="sr-only" for="chat-input">Ask a question</label>
+                <textarea id="chat-input" rows="1" placeholder="Ask anything..." maxlength="12000" required></textarea>
+                <div class="composer-footer">
+                  <span class="composer-hint">Groq AI can make mistakes. Check important information.</span>
+                  <button class="send-button" type="submit" aria-label="Send message"><span>Send</span><span aria-hidden="true">↗</span></button>
+                </div>
+              </form>
+            </div>
+          </section>
+
+          <section class="mode-panel" id="files-panel" data-panel="files" hidden>
+            <div class="section-heading">
+              <div class="eyebrow"><span class="eyebrow-line"></span> DOCUMENTS &amp; IMAGES</div>
+              <h1>Make sense of<br /><span>what you're looking at.</span></h1>
+              <p>Summarize a document or ask a question about an image.</p>
+            </div>
+            <div class="upload-card" id="drop-zone">
+              <input class="sr-only" id="file-input" type="file" accept=".pdf,.docx,.png,.jpg,.jpeg,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/png,image/jpeg" />
+              <span class="upload-icon" aria-hidden="true">↥</span>
+              <strong>Drop a file here, or <button class="inline-link" id="choose-file" type="button">browse files</button></strong>
+              <span>PDF, DOCX, PNG, or JPG · Up to 10 MB</span>
+            </div>
+            <div id="file-result" class="file-result" hidden></div>
+          </section>
+
+          <section class="mode-panel" id="camera-panel" data-panel="camera" hidden>
+            <div class="section-heading">
+              <div class="eyebrow"><span class="eyebrow-line"></span> CAMERA</div>
+              <h1>Show me what<br /><span>you're seeing.</span></h1>
+              <p>Capture an image, then ask Groq to describe it.</p>
+            </div>
+            <div class="camera-card">
+              <div class="camera-viewport" id="camera-viewport">
+                <video id="camera-video" autoplay playsinline muted hidden></video>
+                <canvas id="camera-canvas" hidden></canvas>
+                <div class="camera-placeholder" id="camera-placeholder">
+                  <span class="camera-placeholder-icon" aria-hidden="true">◉</span>
+                  <span>Your camera preview will appear here</span>
+                </div>
+              </div>
+              <div class="camera-controls">
+                <span id="camera-message">Your camera stays in this browser until you capture an image.</span>
+                <div class="button-group">
+                  <button class="secondary-button" id="camera-start" type="button">Start camera</button>
+                  <button class="primary-button" id="camera-capture" type="button" disabled>Capture &amp; describe</button>
+                </div>
+              </div>
+            </div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <div class="modal-backdrop" id="key-modal" role="dialog" aria-modal="true" aria-labelledby="key-title" hidden>
+      <form class="key-modal" id="key-form">
+        <div class="modal-mark" aria-hidden="true">S</div>
+        <div class="eyebrow modal-eyebrow"><span class="eyebrow-line"></span> CONNECT YOUR MODEL</div>
+        <h2 id="key-title">Bring your own<br /><span>Groq API key.</span></h2>
+        <p class="modal-copy">Paste your key to connect this app to Groq. It stays in this browser tab and is sent securely to Groq through your requests.</p>
+        <label class="key-label" for="api-key-input">GROQ API KEY</label>
+        <div class="key-input-wrap">
+          <input id="api-key-input" type="password" placeholder="gsk_••••••••••••••••" autocomplete="off" spellcheck="false" required />
+          <button class="toggle-key" id="toggle-key" type="button" aria-label="Show API key">Show</button>
+        </div>
+        <div class="key-error" id="key-error" role="alert" hidden></div>
+        <button class="primary-button connect-button" id="connect-button" type="submit">Connect securely <span aria-hidden="true">↗</span></button>
+        <p class="key-footnote"><span aria-hidden="true">⌑</span> Not saved in an app database or application logs.</p>
+        <a class="get-key-link" href="https://console.groq.com/keys" target="_blank" rel="noreferrer">Get a Groq API key <span aria-hidden="true">↗</span></a>
+      </form>
+    </div>
+
+    <div class="toast" id="toast" role="status" hidden></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
